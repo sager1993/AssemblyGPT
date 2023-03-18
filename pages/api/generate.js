@@ -9,18 +9,28 @@ export default async function (req, res) {
   if (!configuration.apiKey) {
     res.status(500).json({
       error: {
-        message: "OpenAI API key not configured, please follow instructions in README.md",
-      }
+        message:
+          "OpenAI API key not configured, please follow instructions in README.md",
+      },
     });
     return;
   }
 
-  const animal = req.body.animal || '';
-  if (animal.trim().length === 0) {
+  const role = req.body.role || "";
+  if (role.trim().length === 0) {
     res.status(400).json({
       error: {
-        message: "Please enter a valid animal",
-      }
+        message: "Please enter a valid role",
+      },
+    });
+    return;
+  }
+  const advice = req.body.advice || "";
+  if (advice.trim().length === 0) {
+    res.status(400).json({
+      error: {
+        message: "Please enter a valid advice question",
+      },
     });
     return;
   }
@@ -28,11 +38,11 @@ export default async function (req, res) {
   try {
     const completion = await openai.createCompletion({
       model: "text-davinci-003",
-      prompt: generatePrompt(animal),
+      prompt: generatePrompt(role, advice),
       temperature: 0.6,
     });
     res.status(200).json({ result: completion.data.choices[0].text });
-  } catch(error) {
+  } catch (error) {
     // Consider adjusting the error handling logic for your use case
     if (error.response) {
       console.error(error.response.status, error.response.data);
@@ -41,22 +51,20 @@ export default async function (req, res) {
       console.error(`Error with OpenAI API request: ${error.message}`);
       res.status(500).json({
         error: {
-          message: 'An error occurred during your request.',
-        }
+          message: "An error occurred during your request.",
+        },
       });
     }
   }
 }
 
-function generatePrompt(animal) {
-  const capitalizedAnimal =
-    animal[0].toUpperCase() + animal.slice(1).toLowerCase();
-  return `Suggest three names for an animal that is a superhero.
-
-Animal: Cat
-Names: Captain Sharpclaw, Agent Fluffball, The Incredible Feline
-Animal: Dog
-Names: Ruff the Protector, Wonder Canine, Sir Barks-a-Lot
-Animal: ${capitalizedAnimal}
-Names:`;
+function generatePrompt(role, advice) {
+  const capitalizedRole = role[0].toUpperCase() + role.slice(1).toLowerCase();
+  return `Suggest an advice for a person that wants help and coaching.
+Role: Student I want help studing
+Advices: Get Organized, Don't multitask, Divide it up, Sleep,Set a schedule, Take notes, study
+Role: manager I want help hiring
+Advices: 1. Hire the best 2. Measure the performance of employees regularly 3. Communicating openly is key 4. Encourage employees to share their opinions 5. Set clear goals 6. Reward hard work 7. Ensure that employees enjoy working
+Role: ${capitalizedRole} I want help ${advice}
+Advices:`;
 }
