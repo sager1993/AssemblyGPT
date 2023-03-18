@@ -60,7 +60,7 @@ export default async function (req, res) {
 
 function generatePrompt(role, advice) {
   const capitalizedRole = role[0].toUpperCase() + role.slice(1).toLowerCase();
-  return `Suggest an advice for a person that wants help and coaching.
+  return `Suggest advices for a person that wants help and coaching.
 Role: Student I want help studing
 Advices: Get Organized, Don't multitask, Divide it up, Sleep,Set a schedule, Take notes, study
 Role: manager I want help hiring
